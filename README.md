@@ -1,7 +1,8 @@
 # Django-projekt
 Projekt za predmet Izrada Web Aplikacija Django Framework-u
 
-Zadatak za projekt
+Zadatak za projekt:
+
 Izraditi sustav za upis studenata. Sustav ce se sastojati od tri uloge: student, profesor i
 administrator.
 Uloga administrator:
