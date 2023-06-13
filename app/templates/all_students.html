@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+
+{% block body %}
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="text-center mb-4">List of Students</h1>
+            {% if request.user.is_superuser %}
+                <a href="{% url 'add_user' 'STUDENT' %}" class="btn btn-primary my-3" role="button" style="background-color: black; color: white;">Add new Student</a>
+            {% endif %}
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">First Name</th>
+                        <th scope="col">Last Name</th>
+                        <th scope="col">Username</th>
+                        <th scope="col">E-mail</th>
+                        <th scope="col">Status</th>
+                        <th scope="col"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for student in students %}
+                        <tr>
+                            <td>{{ student.first_name }}</td>
+                            <td>{{ student.last_name }}</td>
+                            <td>{{ student.username }}</td>
+                            <td>{{ student.email }}</td>
+                            <td>{{ student.status }}</td>
+                            <td>
+                                {% if request.user.is_superuser %}
+                                    <a href="{% url 'enrollment_list' student.id %}" class="btn btn-sm btn-secondary" role="button" style="background-color: darkgreen; color: white;">Enrollment List</a>
+                                    <a href="{% url 'edit_user' student.id %}" class="btn btn-sm btn-primary" role="button" style="background-color: darkblue; color: white;">Edit</a>
+                                    <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{ student.id }}" style="background-color: darkred; color: white;">
+                                        Delete
+                                    </button>
+                                {% endif %}
+                            </td>
+                        </tr>
+
+                        <div class="modal fade" id="deleteModal{{ student.id }}" tabindex="-1" aria-labelledby="deleteModal{{ student.id }}Label" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="deleteModal{{ student.id }}Label">Delete Student</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <p>Are you sure you want to delete <b>{{ student.first_name }} {{ student.last_name }}</b>'s student record?</p>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <a href="{% url 'delete_user' student.id %}" class="btn btn-danger" role="button" style="background-color: darkred; color: white;">Delete</a>
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="background-color: darkgreen; color: white;">Cancel</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+           
+        </div>
+    </div>
+</div>
+{% endblock %}

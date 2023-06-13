@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+
+{% block body %}
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="text-center mb-4">Courses</h1>
+            {% if request.user.is_superuser %}
+                <a href="{% url 'add_course' %}" class="btn btn-primary my-3" role="button" style="background-color: black; color: white;">Add new Course</a>
+            {% endif %}
+            <ul class="list-group">
+                {% for course in courses %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center"> 
+                        <div>
+                            {{ course.name }}
+                            ({{ course.code }})
+                        </div>
+
+                        <div>
+                            <button type="button" class="btn btn-sm btn-secondary" data-bs-toggle="modal" data-bs-target="#detailsModal{{ course.id }}" style="background-color:gray; color:white;">
+                                Details
+                            </button>
+
+                            {% if request.user.is_superuser %}
+                                <a href="{% url 'edit_course' course.id %}" class="btn btn-sm btn-primary" role="button" style="background-color: darkblue; color: white;">Edit</a>
+                                <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{ course.id }}" style="background-color: darkred; color: white;">
+                                    Delete
+                                </button>
+                            {% endif %}
+
+                            {% if request.user.role.role == 'ADMIN' or request.user.role.role == 'PROFESSOR' %}
+                                <a href="{% url 'students_on_course' course.id %}" class="btn btn-sm btn-secondary" role="button" style="background-color: darkgreen; color: white;">Show Students</a>
+                            {% endif %}
+                        </div>                   
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+{% for course in courses %}
+<div class="modal fade" id="detailsModal{{ course.id }}" tabindex="-1" aria-labelledby="detailsModal{{ course.id }}Label" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="detailsModal{{ course.id }}Label">Course Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <ul class="list-unstyled">
+                    <li><b>Name:</b> {{ course.name }}</li>
+                    <li><b>Code:</b> {{ course.code }}</li>
+                    <li>
+                        <b>Program:</b>
+                        {% if not course.program %}
+                            <b>Program nije upisan.</b>
+                        {% else %}
+                            <b>{{ course.program }}</b>
+                        {% endif %}
+                    </li>
+                    <li><b>ECTS:</b> {{ course.ects }}</li>
+                    <li><b>Semester (full-time student):</b> {{ course.semester_ft }}.</li>
+                    <li><b>Semester (part-time student):</b> {{ course.semester_pt }}.</li>
+                    <li><b>Elective:</b> {{ course.elective }}</li>
+                    <li>
+                        <b>Professor:</b>
+                        {% if not course.professor %}
+                            <b>Profesor nije povezan.</b>
+                        {% else %}
+                            {{ course.professor.first_name }} {{ course.professor.last_name }} ({{ course.professor.username }}, {{ course.professor.email }})
+                        {% endif %}
+                    </li>
+                </ul>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+
+{% for course in courses %}
+<div class="modal fade" id="deleteModal{{ course.id }}" tabindex="-1" aria-labelledby="deleteModal{{ course.id }}Label" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModal{{ course.id }}Label">Delete Course</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete course <b>{{ course.name }} ({{ course.code }})</b>?</p>
+            </div>
+            <div class="modal-footer">
+                <a href="{% url 'delete_course' course.id %}" class="btn btn-danger" role="button">Delete</a>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+{% endblock %}

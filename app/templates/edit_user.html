@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block body %}
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="text-center mb-4">Edit User</h1>
+
+            <form method="post">
+                {% csrf_token %}
+                <div class="mb-3">
+                    {{ form.as_p }}
+                </div>
+                <input type="submit" value="Edit user" class="btn btn-primary">
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

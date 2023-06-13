@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+
+{% block body %}
+
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="text-center mb-4">Enrollment List</h1>
+            <h5 class="text-center mb-4">Student: {{ student.first_name }} {{ student.last_name }} | Username: {{ student.username }} | Email: {{ student.email }} | Status: {{ student.status }}</h5>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="row mb-0">
+                <div class="col-6">
+                    <h6>Courses:</h6>
+                    <dl class="row">
+                        <dt class="col-sm-8">Enrolled: {{ courses_enrolled }} | Passed: {{ courses_passed }} | Lost Signature: {{ courses_lost_signature }}</dt>
+                    </dl>
+                </div>
+                <div class="col-6">
+                    <h6>ECTS Points:</h6>
+                    <dl class="row">
+                        <dt class="col-sm-5">Total: {{ total_ects }} | Passed: {{ total_ects_passed }}</dt>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="row mt-4">
+        <div class="col-12 col-md-6 mb-4">
+            <div class="card bg-white">
+                <div class="card-header bg-black text-white">
+                    Available Courses
+                </div>
+                <div class="card-body">
+                    <ul class="list-group">
+                        {% for course in available_courses %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    {{ course.name }}
+                                </div>
+                                <span class="badge bg-dark ms-auto">ECTS: {{ course.ects }}</span>
+                                {% if student.status == 'redovni student' %}
+                                    <span class="badge bg-black text-white ms-2">Semester {{ course.semester_ft }}</span>
+                                {% else %}
+                                    <span class="badge bg-black text-white ms-2">Semester {{ course.semester_pt }}</span>
+                                {% endif %}
+                                <span class="badge bg-white text-black ms-2"> </span>
+                                {% if course in block_enroll_courses or total_ects > 60 %} 
+                                    <button class="btn btn-primary btn-sm disabled" disabled>Enroll</button>
+                                {% else %}
+                                    <a href="{% url 'enroll_course' student.id course.id %}" class="btn btn-primary btn-sm {% if student.status == 'redovni student' %}bg-blue text-white border-blue{% else %}bg-red text-white border-red{% endif %}">Enroll</a>
+                                {% endif %}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-6 mb-4">
+            <div class="card bg-white">
+                <div class="card-header bg-black text-white">
+                    Enrolled Courses
+                </div>
+                <div class="card-body">
+                    <div class="accordion mb-3" id="enrolledCoursesCollapse">
+                        {% if student.status == 'redovni student' %}
+                            {% regroup enrolled_courses by semester_ft as enrolled_courses_grouped %}
+                        {% else %}
+                            {% regroup enrolled_courses by semester_pt as enrolled_courses_grouped %}
+                        {% endif %}
+        
+                        {% for semester in enrolled_courses_grouped %}
+                            {% if semester.grouper %}
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header" id="semester{{ student.id }}-{{ semester.grouper }}Heading">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#semester{{ student.id }}-{{ semester.grouper }}Content" aria-expanded="false" aria-controls="semester{{ student.id }}-{{ semester.grouper }}Content">
+                                            Semester {{ semester.grouper }}
+                                        </button>
+                                    </h2>
+                                    <div id="semester{{ student.id }}-{{ semester.grouper }}Content" class="accordion-collapse collapse" aria-labelledby="semester{{ student.id }}-{{ semester.grouper }}Heading" data-bs-parent="#enrolledCoursesCollapse">
+                                        <div class="accordion-body">
+                                            <ul class="list-group">
+                                                {% for course in semester.list %}
+                                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                        <div>
+                                                            {{ course.name }}
+                                                        </div>
+                                                        <span class="badge bg-dark ms-auto">ECTS: {{ course.ects }}</span>
+                                                        <span class="badge bg-black text-white ms-2">Semester {% if student.status == 'redovni student' %}{{ course.semester_ft }}{% else %}{{ course.semester_pt }}{% endif %}</span>
+                                                        {% if course in block_disenroll_courses %}
+                                                            <span class="badge bg-white text-black ms-2"> </span>
+                                                            <button class="btn btn-danger btn-sm disabled" disabled>Disenroll</button>
+                                                        {% else %}
+                                                            <span class="badge bg-white text-black ms-2"> </span>
+                                                            <a href="{% url 'disenroll_course' student.id course.id %}" class="btn btn-danger text-white border-red btn-sm bg-red">Disenroll</a>
+                                                        {% endif %}
+                                                    </li>
+                                                {% endfor %}
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        
+    </div>
+</div>
+
+{% endblock %}
